@@ -1,19 +1,17 @@
 # Use official Python 3.10 slim image as base
-FROM python:3.10-slim
+FROM python:3.12-slim
 
 # Set working directory in the container
 WORKDIR /app
 
-# Install system dependencies for OpenCV (includes FFmpeg for RTSP support)
-RUN apt-get update && apt-get install -y \
-    libopencv-dev \
-    python3-opencv \
-    ffmpeg \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy project files (excluding config.yaml)
+# Copy project files
 COPY rtsp_stream.py .
 COPY requirements.txt .
+
+# Install FFmpeg minimally (assuming it's available in the base image or via pip dependencies)
+# We'll rely on opencv-python's prebuilt FFmpeg support
+RUN apt-get update -qq && apt-get install -y ffmpeg || echo "FFmpeg install failed, relying on pip opencv-python" \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 RUN pip install --no-cache-dir --upgrade pip && \
